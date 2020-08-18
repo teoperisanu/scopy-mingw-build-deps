@@ -216,15 +216,11 @@ build_qwt() {
 	git clone --depth 1 https://github.com/osakared/qwt.git -b $QWT_BRANCH ${WORKDIR}/qwt
 	cd ${WORKDIR}/qwt
 
-	# Disable components that we won't build
-	sed -i "s/^QWT_CONFIG\\s*+=\\s*QwtMathML$/#/g" qwtconfig.pri
-	sed -i "s/^QWT_CONFIG\\s*+=\\s*QwtDesigner$/#/g" qwtconfig.pri
-	sed -i "s/^QWT_CONFIG\\s*+=\\s*QwtExamples$/#/g" qwtconfig.pri
-
-	# Fix prefix
-	sed -i "s/^\\s*QWT_INSTALL_PREFIX.*$/QWT_INSTALL_PREFIX=\"\"/g" qwtconfig.pri
+	wget https://raw.githubusercontent.com/analogdevicesinc/scopy/use-qwt-patches/CI/appveyor/patches/qwt-qwtconfig-pri-build.patch
+	patch -p1 < qwtpolar-qwtpolarconfig-pri-build.patch
 
 	cd ${WORKDIR}/qwt/src
+
 	qmake
 	make INSTALL_ROOT="/c/msys64/${MINGW_VERSION}" $JOBS -f Makefile.Release install
 	make INSTALL_ROOT="${WORKDIR}/msys64/${MINGW_VERSION}" $JOBS -f Makefile.Release install
@@ -238,14 +234,10 @@ build_qwtpolar() {
 	wget https://downloads.sourceforge.net/project/qwtpolar/qwtpolar/1.1.1/qwtpolar-1.1.1.tar.bz2 -O- \
 		| tar xj --strip-components=1 -C ${WORKDIR}/qwtpolar
 
-	patch -p1 < ${WORKDIR}/qwtpolar-qwt-6.1-compat.patch
-
-	# Disable components that we won't build
-	sed -i "s/^QWT_POLAR_CONFIG\\s*+=\\s*QwtPolarDesigner$/#/g" qwtpolarconfig.pri
-	sed -i "s/^QWT_POLAR_CONFIG\\s*+=\\s*QwtPolarExamples$/#/g" qwtpolarconfig.pri
-
-	# Fix prefix
-	sed -i "s/^\\s*QWT_POLAR_INSTALL_PREFIX.*$/QWT_POLAR_INSTALL_PREFIX=\"\"/g" qwtpolarconfig.pri
+	wget https://raw.githubusercontent.com/analogdevicesinc/scopy/master/CI/appveyor/patches/qwtpolar-qwt-qt-compat.patch
+	patch -p1 < qwtpolar-qwt-qt-compat.patch
+	wget https://raw.githubusercontent.com/analogdevicesinc/scopy/use-qwt-patches/CI/appveyor/patches/qwtpolar-qwtpolarconfig-pri-build.patch
+	patch -p1 < qwtpolar-qwtpolarconfig-pri-build.patch
 
 	cd ${WORKDIR}/qwtpolar/src
 	qmake LIBS+="-lqwt"
