@@ -1,15 +1,16 @@
 clone_depth: 1
 
-#init:
-#    - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+init:
+    - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 image: Visual Studio 2019
 environment:
     matrix:
-      - MINGW_VERSION: mingw64
-        ARCH: x86_64
       - MINGW_VERSION: mingw32
         ARCH: i686
+      - MINGW_VERSION: mingw64
+        ARCH: x86_64
+
 
 install:
     - cmd:  C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Syu"
@@ -22,5 +23,5 @@ build_script:
     - appveyor PushArtifact c:\projects\scopy-mingw-build-deps\scopy-%MINGW_VERSION%-build-deps.tar.xz
     - appveyor PushArtifact c:\projects\scopy-mingw-build-deps\old-msys-build-deps-%MINGW_VERSION%.tar.xz
 
-#on_finish:
-#      - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+on_finish:
+      - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))

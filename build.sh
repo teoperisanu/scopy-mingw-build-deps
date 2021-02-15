@@ -11,7 +11,7 @@ GRM2K_BRANCH=master
 QWT_BRANCH=qwt-6.1-multiaxes-scopy
 QWTPOLAR_BRANCH=master # not used
 LIBSIGROKDECODE_BRANCH=master
-GLOG_BRANCH=master
+GLOG_BRANCH=v0.4.0
 
 BUILD_STATUS_FILE=/tmp/scopy-mingw-build-status
 touch $BUILD_STATUS_FILE
@@ -145,15 +145,19 @@ build_glog() {
 	cd ${WORKDIR}/glog/build-${ARCH}
 
 	cmake -G 'Unix Makefiles' \
-		${CMAKE_OPTS} \
+		-DCMAKE_C_COMPILER:FILEPATH=${CC} \
+		-DCMAKE_CXX_COMPILER:FILEPATH=${CXX} \
+		-DPKG_CONFIG_EXECUTABLE=/$MINGW_VERSION/bin/pkg-config.exe \
+		-DCMAKE_INSTALL_PREFIX=/${MINGW_VERSION}\
+		-DCMAKE_PREFIX_PATH="/c/msys64/$MINGW_VERSION/lib/cmake;/c/Windows/System32/" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 		-DWITH_GFLAGS=OFF \
 		-DBUILD_SHARED_LIBS=ON \
-		-DWITH_UNWIND=OFF \
 		${WORKDIR}/glog
 
 	make ${JOBS} install
 	DESTDIR=${WORKDIR} make ${JOBS} install
-
+	echo "$CURRENT_BUILD - $(git rev-parse --short HEAD)" >> $BUILD_STATUS_FILE
 }
 
 build_libm2k() {
